@@ -41,6 +41,10 @@ async def main():
     except FileExistsError:
         pass
 
+    all_save_dirs = []
+    all_save_messages = []
+    all_char_urls = []
+
     pool = ThreadPool(100)
     for char_name, char_urls in anime_char_urls:
         if not char_urls:
@@ -54,12 +58,16 @@ async def main():
         except FileExistsError:
             pass
 
-        print(f'Saving images for {char_name}...')
         len_char_urls = len(char_urls)
         urls_range = range(1, len_char_urls + 1)
         save_dirs = [os.path.join(out_dir, f'{dir_name}-{num}.png') for num in urls_range]
-        save_messages = [f'Saving {num}/{len_char_urls}' for num in urls_range]
-        pool.starmap(save_url, zip(char_urls, save_dirs, save_messages))
+        save_messages = [f'Saving image {num}/{len_char_urls} for {char_name}\n' for num in urls_range]
+
+        all_save_dirs.extend(save_dirs)
+        all_save_messages.extend(save_messages)
+        all_char_urls.extend(char_urls)
+
+    pool.starmap(save_url, zip(all_char_urls, all_save_dirs, all_save_messages))
 
 
 if __name__ == '__main__':
